@@ -23,7 +23,7 @@ The release notes for the current and all past releases can be read here: [📄 
 QRCoder is a project by [Raffael Herrmann](https://raffaelherrmann.de) and was first released in 10/2013. It's licensed under the [MIT license](https://github.com/codebude/QRCoder/blob/master/LICENSE.txt).
 
 
-* * *
+* * * *
 
 
 ## Installation
