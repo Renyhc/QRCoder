@@ -1,0 +1,36 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+	"name": "C# QRCoder",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"dockerFile": "Dockerfile",
+	"image": "mcr.microsoft.com/dotnet/sdk:6.0",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/sshd:1": {}
+    },
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [2222],
+
+	// Use 'postCreateCommand' to run commands after the container is created.	
+	//"postCreateCommand": "dotnet restore && dotnet build",
+	"postCreateCommand": "bash -c 'PASSWORD=$(openssl rand -base64 12); echo \"User: $(whoami)\"; echo \"Random password: $PASSWORD\"; echo \"$(whoami):$PASSWORD\" | sudo chpasswd; pipx install aider-chat && dotnet restore && dotnet build'",
+
+	// Configure tool-specific properties.
+	"customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csharp",
+				"ms-dotnettools.dotnet-interactive-vscode",
+				"streetsidesoftware.code-spell-checker",
+				"GitHub.copilot",
+				"supermaven.ai-assistant-vscode"
+            ]
+        }
+    },
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "vscode"
+}
