@@ -222,3 +222,5 @@ QRCoder/PortabilityAnalysis.html
 
 # Unaccepted approval files
 *.received.txt
+.aider*
+.env
