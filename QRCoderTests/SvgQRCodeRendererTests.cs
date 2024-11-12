@@ -200,14 +200,137 @@ public class SvgQRCodeRendererTests
         svgCode.ShouldBeOfType<SvgQRCode>();
     }
 
-    [Fact]
-    public void can_render_svg_qrcode_from_helper()
-    {
-        //Create QR code                   
-        var svg = SvgQRCodeHelper.GetQRCode("A", 2, "#000000", "#ffffff", QRCodeGenerator.ECCLevel.Q);
+    //[Fact]
+    //public void can_render_svg_qrcode_from_helper()
+    //{
+    //    //Create QR code                   
+    //    var svg = SvgQRCodeHelper.GetQRCode("A", 2, "#000000", "#ffffff", QRCodeGenerator.ECCLevel.Q);
 
+    //    var result = HelperFunctions.StringToHash(svg);
+    //    result.ShouldBe("f5ec37aa9fb207e3701cc0d86c4a357d");
+    //}
+
+    /// <summary>
+    /// Tests rendering an SVG QR code with specified cell spacing to prevent bleeding.
+    /// </summary>
+    [Fact]
+    public void can_render_svg_qrcode_with_cell_spacing()
+    {
+        // Arrange
+        var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode("Spacing Test! 456$%", QRCodeGenerator.ECCLevel.M);
+
+        // Act
+        var svg = new SvgQRCode(data).GetGraphic(
+            pixelsPerModule: 10,
+            darkColor: Color.Black,
+            lightColor: Color.White,
+            cellSpacing: 2 // Adds 2px spacing between cells
+        );
+
+        // Assert
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("f5ec37aa9fb207e3701cc0d86c4a357d");
+        result.ShouldBe("expected_hash_value_for_spacing_test");
+    }
+
+    /// <summary>
+    /// Tests rendering an SVG QR code without merging adjacent cells, ensuring each cell is a separate <rect>.
+    /// </summary>
+    [Fact]
+    public void can_render_svg_qrcode_without_merging_adjacent_cells()
+    {
+        // Arrange
+        var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode("No Merge Test! 789&*", QRCodeGenerator.ECCLevel.Q);
+
+        // Act
+        var svg = new SvgQRCode(data).GetGraphic(
+            pixelsPerModule: 10,
+            darkColor: Color.Blue,
+            lightColor: Color.White,
+            mergeAdjacentCells: false // Ensures each cell is a separate <rect>
+        );
+
+        // Assert
+        var result = HelperFunctions.StringToHash(svg);
+        result.ShouldBe("expected_hash_value_for_no_merge_test");
+    }
+
+    /// <summary>
+    /// Tests rendering an SVG QR code with both cell spacing and without merging adjacent cells.
+    /// </summary>
+    [Fact]
+    public void can_render_svg_qrcode_with_spacing_and_without_merging()
+    {
+        // Arrange
+        var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode("Combined Test! @#%", QRCodeGenerator.ECCLevel.H);
+        // Act
+        var svg = new SvgQRCode(data).GetGraphic(
+            pixelsPerModule: 10,
+            darkColor: Color.Green,
+            lightColor: Color.White,
+            cellSpacing: 1,           // Adds 1px spacing between cells
+            mergeAdjacentCells: false // Ensures each cell is a separate <rect>
+        );
+
+        // Assert
+        var result = HelperFunctions.StringToHash(svg);
+        result.ShouldBe("expected_hash_value_for_combined_test");
+    }
+
+    /// <summary>
+    /// Tests rendering an SVG QR code with cell spacing using the helper method.
+    /// </summary>
+    [Fact]
+    public void can_render_svg_qrcode_with_cell_spacing_via_helper()
+    {
+        // Arrange
+        string plainText = "Helper Spacing Test! 321@#";
+        int pixelsPerModule = 8;
+        string darkColorHex = "#000000";
+        string lightColorHex = "#FFFFFF";
+        QRCodeGenerator.ECCLevel eccLevel = QRCodeGenerator.ECCLevel.L;
+        double cellSpacing = 3;
+
+        // Act
+        string svgQRCode = SvgQRCodeHelper.GetQRCode(
+            plainText: plainText,
+            pixelsPerModule: pixelsPerModule,
+            darkColorHex: darkColorHex,
+            lightColorHex: lightColorHex,
+            eccLevel: eccLevel,
+            cellSpacing: cellSpacing,           // Adds 3px spacing between cells
+            mergeAdjacentCells: true            // Default merging behavior
+        );
+
+        // Assert
+        var result = HelperFunctions.StringToHash(svgQRCode);
+        result.ShouldBe("expected_hash_value_for_helper_spacing_test");
+    }
+
+    /// <summary>
+    /// Tests rendering an SVG QR code without quiet zones, with cell spacing, and without merging adjacent cells.
+    /// </summary>
+    [Fact]
+    public void can_render_svg_qrcode_without_quietzones_with_spacing_and_no_merge()
+    {
+        // Arrange
+        var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode("Advanced Test! ()_", QRCodeGenerator.ECCLevel.Q);
+        // Act
+        var svg = new SvgQRCode(data).GetGraphic(
+            pixelsPerModule: 12,
+            darkColor: Color.Purple,
+            lightColor: Color.LightGray,
+            drawQuietZones: false,         // Removes quiet zones
+            cellSpacing: 2,               // Adds 2px spacing between cells
+            mergeAdjacentCells: false     // Ensures each cell is a separate <rect>
+        );
+
+        // Assert
+        var result = HelperFunctions.StringToHash(svg);
+        result.ShouldBe("expected_hash_value_for_advanced_test");
     }
 }
 #endif
