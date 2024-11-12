@@ -30,7 +30,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// </summary>
     /// <param name="pixelsPerModule">The pixel size each dark/light module is drawn.</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(int pixelsPerModule)
+    public string GetGraphic(int pixelsPerModule, double cellScale = 1.0, bool separateCells = false)
     {
         var viewBox = new Size(pixelsPerModule * QrCodeData.ModuleMatrix.Count, pixelsPerModule * QrCodeData.ModuleMatrix.Count);
         return GetGraphic(viewBox, Color.Black, Color.White);
@@ -142,6 +142,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
                     double y = yi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
                     //svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(scaledPixelsPerModule)}"" height=""{CleanSvgVal(scaledPixelsPerModule)}"" fill=""{darkColorHex}"" />");
                 }
+            }
             }
         }
         if (!separateCells)
