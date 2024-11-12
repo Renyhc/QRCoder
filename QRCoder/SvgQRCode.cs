@@ -30,7 +30,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// </summary>
     /// <param name="pixelsPerModule">The pixel size each dark/light module is drawn.</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(int pixelsPerModule)
+    public string GetGraphic(int pixelsPerModule, double cellScale = 1.0, bool separateCells = false)
     {
         var viewBox = new Size(pixelsPerModule * QrCodeData.ModuleMatrix.Count, pixelsPerModule * QrCodeData.ModuleMatrix.Count);
         return GetGraphic(viewBox, Color.Black, Color.White);
@@ -80,8 +80,8 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// <param name="sizingMode">Defines whether width/height or viewBox should be used for size definition.</param>
     /// <param name="logo">An optional logo to be rendered on the code (either Bitmap or SVG).</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(Size viewBox, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null)
-        => GetGraphic(viewBox, Color.Black, Color.White, drawQuietZones, sizingMode, logo);
+    public string GetGraphic(Size viewBox, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null, double cellScale = 1.0, bool separateCells = false)
+        => GetGraphic(viewBox, Color.Black, Color.White, drawQuietZones, sizingMode, logo, cellScale, separateCells);
 
     /// <summary>
     /// Returns a QR code as an SVG string with custom colors and optional quiet zones and an optional logo.
@@ -106,7 +106,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// <param name="sizingMode">Defines whether width/height or viewBox should be used for size definition.</param>
     /// <param name="logo">An optional logo to be rendered on the code (either Bitmap or SVG).</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(Size viewBox, string darkColorHex, string lightColorHex, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null)
+    public string GetGraphic(Size viewBox, string darkColorHex, string lightColorHex, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null, double cellScale = 1.0, bool separateCells = false)
     {
         int offset = drawQuietZones ? 0 : 4;
         int drawableModulesCount = QrCodeData.ModuleMatrix.Count - (drawQuietZones ? 0 : offset * 2);
@@ -120,6 +120,19 @@ public class SvgQRCode : AbstractQRCode, IDisposable
         // Merge horizontal rectangles
         int[,] matrix = new int[drawableModulesCount, drawableModulesCount];
         for (int yi = 0; yi < drawableModulesCount; yi += 1)
+        {
+            var bitArray = QrCodeData.ModuleMatrix[yi + offset];
+            for (int xi = 0; xi < drawableModulesCount; xi += 1)
+            {
+                if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                {
+                    double x = xi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
+                    double y = yi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
+                    svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(scaledPixelsPerModule)}"" height=""{CleanSvgVal(scaledPixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                }
+            }
+        }
+        if (!separateCells)
         {
             var bitArray = QrCodeData.ModuleMatrix[yi + offset];
 
