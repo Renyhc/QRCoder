@@ -30,7 +30,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// </summary>
     /// <param name="pixelsPerModule">The pixel size each dark/light module is drawn.</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(int pixelsPerModule, double cellScale = 1.0, bool separateCells = false)
+    public string GetGraphic(int pixelsPerModule, double cellScale = 1.0, bool separateCells = true)
     {
         var viewBox = new Size(pixelsPerModule * QrCodeData.ModuleMatrix.Count, pixelsPerModule * QrCodeData.ModuleMatrix.Count);
         return GetGraphic(viewBox, Color.Black, Color.White);
@@ -64,7 +64,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// <param name="sizingMode">Defines whether width/height or viewBox should be used for size definition.</param>
     /// <param name="logo">An optional logo to be rendered on the code (either Bitmap or SVG).</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(int pixelsPerModule, string darkColorHex, string lightColorHex, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null)
+    public string GetGraphic(int pixelsPerModule, string darkColorHex, string lightColorHex, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null, bool separateCells = true)
     {
         var offset = drawQuietZones ? 0 : 4;
         var edgeSize = QrCodeData.ModuleMatrix.Count * pixelsPerModule - (offset * 2 * pixelsPerModule);
@@ -93,7 +93,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// <param name="sizingMode">Defines whether width/height or viewBox should be used for size definition.</param>
     /// <param name="logo">An optional logo to be rendered on the code (either Bitmap or SVG).</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(Size viewBox, Color darkColor, Color lightColor, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null)
+    public string GetGraphic(Size viewBox, Color darkColor, Color lightColor, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null, bool separateCells = true)
         => GetGraphic(viewBox, ColorTranslator.ToHtml(Color.FromArgb(darkColor.ToArgb())), ColorTranslator.ToHtml(Color.FromArgb(lightColor.ToArgb())), drawQuietZones, sizingMode, logo);
 
     /// <summary>
@@ -119,50 +119,56 @@ public class SvgQRCode : AbstractQRCode, IDisposable
 
         // Merge horizontal rectangles
         int[,] matrix = new int[drawableModulesCount, drawableModulesCount];
-        for (int yi = 0; yi < drawableModulesCount; yi += 1)
+        if (separateCells)
         {
-            var bitArray = QrCodeData.ModuleMatrix[yi + offset];
-            for (int xi = 0; xi < drawableModulesCount; xi += 1)
+            for (int yi = 0; yi < drawableModulesCount; yi += 1)
             {
-                if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                var bitArray = QrCodeData.ModuleMatrix[yi + offset];
+                for (int xi = 0; xi < drawableModulesCount; xi += 1)
                 {
-                    double x = xi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
-                    double y = yi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
-                    svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(scaledPixelsPerModule)}"" height=""{CleanSvgVal(scaledPixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                    if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                    {
+                        double x = xi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
+                        double y = yi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
+                        svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(scaledPixelsPerModule)}"" height=""{CleanSvgVal(scaledPixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                    }
                 }
             }
         }
-        if (!separateCells)
+        else
         {
-            var bitArray = QrCodeData.ModuleMatrix[yi + offset];
-
-            int x0 = -1;
-            int xL = 0;
-            for (int xi = 0; xi < drawableModulesCount; xi += 1)
+            for (int yi = 0; yi < drawableModulesCount; yi += 1)
             {
-                matrix[yi, xi] = 0;
-                if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
-                {
-                    if (x0 == -1)
-                    {
-                        x0 = xi;
-                    }
-                    xL += 1;
-                }
-                else
-                {
-                    if (xL > 0)
-                    {
-                        matrix[yi, x0] = xL;
-                        x0 = -1;
-                        xL = 0;
-                    }
-                }
-            }
+                var bitArray = QrCodeData.ModuleMatrix[yi + offset];
 
-            if (xL > 0)
-            {
-                matrix[yi, x0] = xL;
+                int x0 = -1;
+                int xL = 0;
+                for (int xi = 0; xi < drawableModulesCount; xi += 1)
+                {
+                    matrix[yi, xi] = 0;
+                    if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                    {
+                        if (x0 == -1)
+                        {
+                            x0 = xi;
+                        }
+                        xL += 1;
+                    }
+                    else
+                    {
+                        if (xL > 0)
+                        {
+                            matrix[yi, x0] = xL;
+                            x0 = -1;
+                            xL = 0;
+                        }
+                    }
+                }
+
+                if (xL > 0)
+                {
+                    matrix[yi, x0] = xL;
+                }
             }
         }
 
