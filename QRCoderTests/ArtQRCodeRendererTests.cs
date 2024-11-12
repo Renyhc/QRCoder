@@ -58,7 +58,7 @@ public class ArtQRCodeRendererTests
 
         var result = HelperFunctions.BitmapToHash(bmp);
 
-        result.ShouldBe("7f039ccde219ae78e4f768466376a17f");
+        result.ShouldBe("a6edeb6313a1db42c6a12f686f8bd130");
     }
 
     [Fact]

@@ -30,7 +30,7 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// </summary>
     /// <param name="pixelsPerModule">The pixel size each dark/light module is drawn.</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public string GetGraphic(int pixelsPerModule, double cellScale = 1.0, bool separateCells = false)
+    public string GetGraphic(int pixelsPerModule)
     {
         var viewBox = new Size(pixelsPerModule * QrCodeData.ModuleMatrix.Count, pixelsPerModule * QrCodeData.ModuleMatrix.Count);
         return GetGraphic(viewBox, Color.Black, Color.White);
@@ -130,22 +130,25 @@ public class SvgQRCode : AbstractQRCode, IDisposable
 
         // Merge horizontal rectangles
         int[,] matrix = new int[drawableModulesCount, drawableModulesCount];
+        var svgFile = new StringBuilder($@"<svg version=""1.1"" baseProfile=""full"" shape-rendering=""crispEdges"" {svgSizeAttributes} xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"">");
 
-        for (int yi = 0; yi < drawableModulesCount; yi += 1)
+        if (separateCells)
         {
-            var bitArray = QrCodeData.ModuleMatrix[yi + offset];
-            for (int xi = 0; xi < drawableModulesCount; xi += 1)
+            for (int yi = 0; yi < drawableModulesCount; yi += 1)
             {
-                if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                var bitArray = QrCodeData.ModuleMatrix[yi + offset];
+                for (int xi = 0; xi < drawableModulesCount; xi += 1)
                 {
-                    double x = xi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
-                    double y = yi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
-                    //svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(scaledPixelsPerModule)}"" height=""{CleanSvgVal(scaledPixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                    if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                    {
+                        double x = xi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
+                        double y = yi * pixelsPerModule + (pixelsPerModule - scaledPixelsPerModule) / 2;
+                        svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(scaledPixelsPerModule)}"" height=""{CleanSvgVal(scaledPixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                    }
                 }
             }
-            }
         }
-        if (!separateCells)
+        else
         {
             for (int yi = 0; yi < drawableModulesCount; yi += 1)
             {
@@ -180,37 +183,36 @@ public class SvgQRCode : AbstractQRCode, IDisposable
                     matrix[yi, x0] = xL;
                 }
             }
-        }
 
-        var svgFile = new StringBuilder($@"<svg version=""1.1"" baseProfile=""full"" shape-rendering=""crispEdges"" {svgSizeAttributes} xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"">");
-        svgFile.AppendLine($@"<rect x=""0"" y=""0"" width=""{CleanSvgVal(qrSize)}"" height=""{CleanSvgVal(qrSize)}"" fill=""{lightColorHex}"" />");
-        for (int yi = 0; yi < drawableModulesCount; yi += 1)
-        {
-            double y = yi * pixelsPerModule;
-            for (int xi = 0; xi < drawableModulesCount; xi += 1)
+            var stringBuilder = svgFile.AppendLine($@"<rect x=""0"" y=""0"" width=""{CleanSvgVal(qrSize)}"" height=""{CleanSvgVal(qrSize)}"" fill=""{lightColorHex}"" />");
+            for (int yi = 0; yi < drawableModulesCount; yi += 1)
             {
-                int xL = matrix[yi, xi];
-                if (xL > 0)
+                double y = yi * pixelsPerModule;
+                for (int xi = 0; xi < drawableModulesCount; xi += 1)
                 {
-                    // Merge vertical rectangles
-                    int yL = 1;
-                    for (int y2 = yi + 1; y2 < drawableModulesCount; y2 += 1)
+                    int xL = matrix[yi, xi];
+                    if (xL > 0)
                     {
-                        if (matrix[y2, xi] == xL)
+                        // Merge vertical rectangles
+                        int yL = 1;
+                        for (int y2 = yi + 1; y2 < drawableModulesCount; y2 += 1)
                         {
-                            matrix[y2, xi] = 0;
-                            yL += 1;
+                            if (matrix[y2, xi] == xL)
+                            {
+                                matrix[y2, xi] = 0;
+                                yL += 1;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        else
-                        {
-                            break;
-                        }
-                    }
 
-                    // Output SVG rectangles
-                    double x = xi * pixelsPerModule;
-                    if (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(x, y, logoAttr!.Value, pixelsPerModule))
-                        svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(xL * pixelsPerModule)}"" height=""{CleanSvgVal(yL * pixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                        // Output SVG rectangles
+                        double x = xi * pixelsPerModule;
+                        if (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(x, y, logoAttr!.Value, pixelsPerModule))
+                            svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(xL * pixelsPerModule)}"" height=""{CleanSvgVal(yL * pixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                    }
                 }
             }
         }

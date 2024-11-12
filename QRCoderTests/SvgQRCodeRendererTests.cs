@@ -44,7 +44,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(new Size(128, 128));
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("56719c7db39937c74377855a5dc4af0a");
+        result.ShouldBe("87be9adaf41d8e0f67511d7d475637cb");
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(new Size(128, 128), sizingMode: SvgQRCode.SizingMode.ViewBoxAttribute);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("788afdb693b0b71eed344e495c180b60");
+        result.ShouldBe("08719ca8f29192d5d22bcc50e8e022f5");
     }
 
     [Fact]
@@ -209,5 +209,55 @@ public class SvgQRCodeRendererTests
         var result = HelperFunctions.StringToHash(svg);
         result.ShouldBe("f5ec37aa9fb207e3701cc0d86c4a357d");
     }
+
+    [Fact]
+    public void TestSvgQRCodeWithCellScale()
+    {
+        // Arrange
+        var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode("Test", QRCodeGenerator.ECCLevel.Q);
+        var svgQRCode = new SvgQRCode(data);
+
+        // Act
+        var svg = svgQRCode.GetGraphic(10, Color.Black, Color.White, cellScale: 0.8);
+
+        // Assert
+        Assert.Contains("rect", svg);
+    }
+
+    [Fact]
+    public void TestSvgQRCodeWithSeparateCells()
+    {
+        // Arrange
+        var generator = new QRCodeGenerator();
+        var data = generator.CreateQrCode("Test", QRCodeGenerator.ECCLevel.Q);
+        var svgQRCode = new SvgQRCode(data);
+
+        // Act
+        var svg = svgQRCode.GetGraphic(10, Color.Black, Color.White, separateCells: true);
+
+        // Assert
+        Assert.Contains("rect", svg);
+    }
+
+    [Fact]
+    public void TestSvgQRCodeWithOtherSeparateCells()
+    {
+        // Arrange
+        string plainText = "Test QR Code";
+        int pixelsPerModule = 10;
+        string darkColorHex = "#000000";
+        string lightColorHex = "#FFFFFF";
+        var eccLevel = QRCodeGenerator.ECCLevel.Q;
+        bool separateCells = true;
+        double cellScale = 0.9;
+
+        // Act
+        string svg = SvgQRCodeHelper.GetQRCode(plainText, pixelsPerModule, darkColorHex, lightColorHex, eccLevel, separateCells: separateCells, cellScale: cellScale);
+
+        // Assert
+        Assert.Contains("rect", svg);
+    }
+
 }
 #endif

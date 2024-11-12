@@ -932,11 +932,11 @@ namespace QRCoder
         public SvgQRCode() { }
         public SvgQRCode(QRCoder.QRCodeData data) { }
         public string GetGraphic(int pixelsPerModule) { }
-        public string GetGraphic(System.Drawing.Size viewBox, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
-        public string GetGraphic(System.Drawing.Size viewBox, System.Drawing.Color darkColor, System.Drawing.Color lightColor, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
-        public string GetGraphic(System.Drawing.Size viewBox, string darkColorHex, string lightColorHex, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
-        public string GetGraphic(int pixelsPerModule, System.Drawing.Color darkColor, System.Drawing.Color lightColor, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
-        public string GetGraphic(int pixelsPerModule, string darkColorHex, string lightColorHex, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
+        public string GetGraphic(System.Drawing.Size viewBox, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null, double cellScale = 1, bool separateCells = true) { }
+        public string GetGraphic(System.Drawing.Size viewBox, System.Drawing.Color darkColor, System.Drawing.Color lightColor, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null, double cellScale = 1, bool separateCells = false) { }
+        public string GetGraphic(System.Drawing.Size viewBox, string darkColorHex, string lightColorHex, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null, double cellScale = 1, bool separateCells = false) { }
+        public string GetGraphic(int pixelsPerModule, System.Drawing.Color darkColor, System.Drawing.Color lightColor, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null, double cellScale = 1, bool separateCells = false) { }
+        public string GetGraphic(int pixelsPerModule, string darkColorHex, string lightColorHex, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null, double cellScale = 1, bool separateCells = false) { }
         public enum SizingMode
         {
             WidthHeightAttribute = 0,
@@ -965,7 +965,7 @@ namespace QRCoder
     }
     public static class SvgQRCodeHelper
     {
-        public static string GetQRCode(string plainText, int pixelsPerModule, string darkColorHex, string lightColorHex, QRCoder.QRCodeGenerator.ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, QRCoder.QRCodeGenerator.EciMode eciMode = 0, int requestedVersion = -1, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
+        public static string GetQRCode(string plainText, int pixelsPerModule, string darkColorHex, string lightColorHex, QRCoder.QRCodeGenerator.ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, QRCoder.QRCodeGenerator.EciMode eciMode = 0, int requestedVersion = -1, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null, double cellScale = 1, bool separateCells = false) { }
     }
 }
 namespace QRCoder.Exceptions
