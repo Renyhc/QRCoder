@@ -19,6 +19,9 @@ public class SvgQRCode : AbstractQRCode, IDisposable
     /// </summary>
     public SvgQRCode() { }
 
+    public double CellPadding { get; set; } = 0;
+    public bool PreventCellMerging { get; set; } = false;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SvgQRCode"/> class with the specified <see cref="QRCodeData"/>.
     /// </summary>
@@ -119,69 +122,106 @@ public class SvgQRCode : AbstractQRCode, IDisposable
 
         // Merge horizontal rectangles
         int[,] matrix = new int[drawableModulesCount, drawableModulesCount];
-        for (int yi = 0; yi < drawableModulesCount; yi += 1)
-        {
-            var bitArray = QrCodeData.ModuleMatrix[yi + offset];
-
-            int x0 = -1;
-            int xL = 0;
-            for (int xi = 0; xi < drawableModulesCount; xi += 1)
-            {
-                matrix[yi, xi] = 0;
-                if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
-                {
-                    if (x0 == -1)
-                    {
-                        x0 = xi;
-                    }
-                    xL += 1;
-                }
-                else
-                {
-                    if (xL > 0)
-                    {
-                        matrix[yi, x0] = xL;
-                        x0 = -1;
-                        xL = 0;
-                    }
-                }
-            }
-
-            if (xL > 0)
-            {
-                matrix[yi, x0] = xL;
-            }
-        }
 
         var svgFile = new StringBuilder($@"<svg version=""1.1"" baseProfile=""full"" shape-rendering=""crispEdges"" {svgSizeAttributes} xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"">");
-        svgFile.AppendLine($@"<rect x=""0"" y=""0"" width=""{CleanSvgVal(qrSize)}"" height=""{CleanSvgVal(qrSize)}"" fill=""{lightColorHex}"" />");
-        for (int yi = 0; yi < drawableModulesCount; yi += 1)
+
+        if (PreventCellMerging)
         {
-            double y = yi * pixelsPerModule;
-            for (int xi = 0; xi < drawableModulesCount; xi += 1)
+            // SVG header
+            svgFile.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            svgFile.AppendFormat("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"{0}\" height=\"{0}\" viewBox=\"0 0 {0} {0}\">", qrSize);
+
+            // Background
+            svgFile.AppendFormat("<rect x=\"0\" y=\"0\" width=\"{0}\" height=\"{0}\" fill=\"{1}\"/>", qrSize, lightColorHex);
+
+            // Draw QR code cells
+            for (int y = 0; y < qrSize; y++)
             {
-                int xL = matrix[yi, xi];
-                if (xL > 0)
+                for (int x = 0; x < qrSize; x++)
                 {
-                    // Merge vertical rectangles
-                    int yL = 1;
-                    for (int y2 = yi + 1; y2 < drawableModulesCount; y2 += 1)
+                    if (QrCodeData.ModuleMatrix[y + offset][x + offset])
                     {
-                        if (matrix[y2, xi] == xL)
+                        double posX = x * pixelsPerModule;
+                        double posY = y * pixelsPerModule;
+
+                        if (PreventCellMerging)
                         {
-                            matrix[y2, xi] = 0;
-                            yL += 1;
+                            DrawCell(svgFile, posX, posY, pixelsPerModule);
                         }
                         else
                         {
-                            break;
+                            svgFile.AppendFormat("<rect x=\"{0}\" y=\"{1}\" width=\"{2}\" height=\"{2}\" fill=\"{3}\"/>",
+                                posX, posY, pixelsPerModule, darkColorHex);
                         }
                     }
+                }
+            }
+        }
+        else
+        {
 
-                    // Output SVG rectangles
-                    double x = xi * pixelsPerModule;
-                    if (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(x, y, logoAttr!.Value, pixelsPerModule))
-                        svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(xL * pixelsPerModule)}"" height=""{CleanSvgVal(yL * pixelsPerModule)}"" fill=""{darkColorHex}"" />");
+            for (int yi = 0; yi < drawableModulesCount; yi += 1)
+            {
+                var bitArray = QrCodeData.ModuleMatrix[yi + offset];
+
+                int x0 = -1;
+                int xL = 0;
+                for (int xi = 0; xi < drawableModulesCount; xi += 1)
+                {
+                    matrix[yi, xi] = 0;
+                    if (bitArray[xi + offset] && (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(xi * pixelsPerModule, yi * pixelsPerModule, logoAttr!.Value, pixelsPerModule)))
+                    {
+                        if (x0 == -1)
+                        {
+                            x0 = xi;
+                        }
+                        xL += 1;
+                    }
+                    else
+                    {
+                        if (xL > 0)
+                        {
+                            matrix[yi, x0] = xL;
+                            x0 = -1;
+                            xL = 0;
+                        }
+                    }
+                }
+
+                if (xL > 0)
+                {
+                    matrix[yi, x0] = xL;
+                }
+            }
+            svgFile.AppendLine($@"<rect x=""0"" y=""0"" width=""{CleanSvgVal(qrSize)}"" height=""{CleanSvgVal(qrSize)}"" fill=""{lightColorHex}"" />");
+            for (int yi = 0; yi < drawableModulesCount; yi += 1)
+            {
+                double y = yi * pixelsPerModule;
+                for (int xi = 0; xi < drawableModulesCount; xi += 1)
+                {
+                    int xL = matrix[yi, xi];
+                    if (xL > 0)
+                    {
+                        // Merge vertical rectangles
+                        int yL = 1;
+                        for (int y2 = yi + 1; y2 < drawableModulesCount; y2 += 1)
+                        {
+                            if (matrix[y2, xi] == xL)
+                            {
+                                matrix[y2, xi] = 0;
+                                yL += 1;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        // Output SVG rectangles
+                        double x = xi * pixelsPerModule;
+                        if (logo == null || !logo.FillLogoBackground() || !IsBlockedByLogo(x, y, logoAttr!.Value, pixelsPerModule))
+                            svgFile.AppendLine($@"<rect x=""{CleanSvgVal(x)}"" y=""{CleanSvgVal(y)}"" width=""{CleanSvgVal(xL * pixelsPerModule)}"" height=""{CleanSvgVal(yL * pixelsPerModule)}"" fill=""{darkColorHex}"" />");
+                    }
                 }
             }
         }
@@ -210,6 +250,17 @@ public class SvgQRCode : AbstractQRCode, IDisposable
 
         svgFile.Append(@"</svg>");
         return svgFile.ToString();
+    }
+
+    private void DrawCell(StringBuilder svg, double x, double y, double size)
+    {
+        double padding = size * CellPadding;
+        double paddedSize = size - (padding * 2);
+        double xPos = x + padding;
+        double yPos = y + padding;
+
+        svg.AppendFormat("<rect x=\"{0}\" y=\"{1}\" width=\"{2}\" height=\"{2}\" fill=\"{3}\"/>",
+            xPos, yPos, paddedSize, "#000000");
     }
 
     private bool IsBlockedByLogo(double x, double y, ImageAttributes attr, double pixelPerModule)
@@ -403,11 +454,59 @@ public static class SvgQRCodeHelper
     /// <param name="sizingMode">Defines whether width/height or viewBox should be used for size definition.</param>
     /// <param name="logo">An optional logo to be rendered on the code (either Bitmap or SVG).</param>
     /// <returns>Returns the QR code graphic as an SVG string.</returns>
-    public static string GetQRCode(string plainText, int pixelsPerModule, string darkColorHex, string lightColorHex, ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, EciMode eciMode = EciMode.Default, int requestedVersion = -1, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null)
+    // public static string GetQRCode(string plainText, int pixelsPerModule, string darkColorHex, string lightColorHex, ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, EciMode eciMode = EciMode.Default, int requestedVersion = -1, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute, SvgLogo? logo = null)
+    // {
+    //     using var qrGenerator = new QRCodeGenerator();
+    //     using var qrCodeData = qrGenerator.CreateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion);
+    //     using var qrCode = new SvgQRCode(qrCodeData);
+    //     return qrCode.GetGraphic(pixelsPerModule, darkColorHex, lightColorHex, drawQuietZones, sizingMode, logo);
+    // }
+
+    /// <summary>
+    /// Returns a QR code as an SVG string with custom colors, optional quiet zones, and an optional logo.
+    /// </summary>
+    /// <param name="plainText">The text or payload to be encoded inside the QR code.</param>
+    /// <param name="pixelsPerModule">The pixel size each dark/light module of the QR code will occupy in the final QR code image.</param>
+    /// <param name="darkColorHex">The color of the dark modules in HEX format (e.g., #000000).</param>
+    /// <param name="lightColorHex">The color of the light modules in HEX format (e.g., #ffffff).</param>
+    /// <param name="eccLevel">The level of error correction data.</param>
+    /// <param name="cellPadding">The padding between cells in the QR code.</param>
+    /// <param name="preventMerge">If true, individual cells will not be merged.</param>
+    /// <param name="forceUtf8">Specifies whether the generator should be forced to work in UTF-8 mode.</param>
+    /// <param name="utf8BOM">Specifies whether the byte-order-mark should be used.</param>
+    /// <param name="eciMode">Specifies which ECI mode should be used.</param>
+    /// <param name="requestedVersion">Sets the fixed QR code target version.</param>
+    /// <param name="drawQuietZones">Indicates if quiet zones around the QR code should be drawn.</param>
+    /// <param name="sizingMode">Defines whether width/height or viewBox should be used for size definition.</param>
+    /// <param name="logo">An optional logo to be rendered on the code (either Bitmap or SVG).</param>
+    /// <returns>Returns the QR code graphic as an SVG string.</returns>
+    /// <remarks>
+    /// This method is a convenience wrapper around the <see cref="GetQRCode(string, int, string, string, ECCLevel, double, bool, bool, EciMode, int, bool, SizingMode, SvgLogo?)"/> method.
+    /// It allows you to specify the cell padding as a percentage of the QR code size.
+    /// </remarks>
+    public static string GetQRCode(
+        string plainText,
+        int pixelsPerModule,
+        string darkColorHex,
+        string lightColorHex,
+        ECCLevel eccLevel,
+        double cellPadding = 0, // New parameter: 0-1 value for cell padding (e.g. 0.1 = 10% padding)
+        bool preventMerge = false, // New parameter: force individual rectangles
+        bool forceUtf8 = false,
+        bool utf8BOM = false,
+        EciMode eciMode = EciMode.Default,
+        int requestedVersion = -1,
+        bool drawQuietZones = true,
+        SizingMode sizingMode = SizingMode.WidthHeightAttribute,
+        SvgLogo? logo = null)
     {
         using var qrGenerator = new QRCodeGenerator();
         using var qrCodeData = qrGenerator.CreateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion);
-        using var qrCode = new SvgQRCode(qrCodeData);
+        using var qrCode = new SvgQRCode(qrCodeData)
+        {
+            CellPadding = cellPadding,
+            PreventCellMerging = preventMerge
+        };
         return qrCode.GetGraphic(pixelsPerModule, darkColorHex, lightColorHex, drawQuietZones, sizingMode, logo);
     }
 }

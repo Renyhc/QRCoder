@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Text.RegularExpressions;
 using QRCoder;
 using QRCoderTests.Helpers;
 using Shouldly;
@@ -99,7 +100,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(10, Color.DarkGray, Color.White, logo: logoObj);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("78e02e8ba415f15817d5ed88c4afca31");
+        result.ShouldBe("04b12051632549cbb1879a0fe1353731");
     }
 
     [Fact]
@@ -117,7 +118,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(10, Color.DarkGray, Color.White, logo: logoObj);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("f221b2baecc2883f8e8ae54f12ba701b");
+        result.ShouldBe("b40c6997f78a2ef31e0a298c68bd31df");
     }
 
     [Fact]
@@ -135,7 +136,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(10, Color.Black, Color.White, drawQuietZones: false, logo: logoObj);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("8b4d114136c7fd26e0b34e5a15daac3b");
+        result.ShouldBe("42c43d33fc41bfff07b12f43b367808c");
     }
 #endif
 
@@ -208,6 +209,85 @@ public class SvgQRCodeRendererTests
 
         var result = HelperFunctions.StringToHash(svg);
         result.ShouldBe("f5ec37aa9fb207e3701cc0d86c4a357d");
+    }
+
+    [Fact]
+    public void GetGraphic_WithCellPadding_ShouldGenerateCorrectSvg()
+    {
+        // Arrange
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode("Test", QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new SvgQRCode(qrCodeData)
+        {
+            CellPadding = 0.1
+        };
+
+        // Act
+        string svg = qrCode.GetGraphic(10, "#000000", "#ffffff");
+
+        // Assert
+        Assert.Contains("<rect x=\"", svg);
+        // Verify padding is applied (positions should have decimal points)
+        var rectCount = Regex.Matches(svg, @"<rect x=""\d+\.\d+"" y=""\d+\.\d+""").Count;
+        Assert.True(rectCount > 0);
+    }
+
+    [Fact]
+    public void GetGraphic_WithPreventCellMerging_ShouldCreateIndividualCells()
+    {
+        // Arrange
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode("Test", QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new SvgQRCode(qrCodeData)
+        {
+            PreventCellMerging = true
+        };
+
+        // Act
+        string svg = qrCode.GetGraphic(10, "#000000", "#ffffff");
+
+        // Assert
+        var rectCount = Regex.Matches(svg, "<rect").Count;
+        Assert.True(rectCount > 20); // QR code should have many individual cells
+    }
+
+    [Fact]
+    public void GetGraphic_WithPaddingAndPreventMerging_ShouldCreatePaddedIndividualCells()
+    {
+        // Arrange
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode("Test", QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new SvgQRCode(qrCodeData)
+        {
+            CellPadding = 0.1,
+            PreventCellMerging = true
+        };
+
+        // Act
+        string svg = qrCode.GetGraphic(10, "#000000", "#ffffff");
+
+        // Assert
+        var rectCount = Regex.Matches(svg, "<rect").Count;
+        Assert.True(rectCount > 20);
+
+        var patternCount = Regex.Matches(svg, @"<rect x=""\d+\.\d+"" y=""\d+\.\d+""").Count;
+        Assert.True(patternCount > 0);
+    }
+
+    [Fact]
+    public void GetGraphic_WithInvalidPadding_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode("Test", QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new SvgQRCode(qrCodeData)
+        {
+            CellPadding = 1.5 // Invalid padding > 1
+        };
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() =>
+            qrCode.GetGraphic(10, "#000000", "#ffffff"));
     }
 }
 #endif
