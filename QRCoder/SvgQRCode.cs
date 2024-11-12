@@ -410,6 +410,44 @@ public static class SvgQRCodeHelper
         using var qrCode = new SvgQRCode(qrCodeData);
         return qrCode.GetGraphic(pixelsPerModule, darkColorHex, lightColorHex, drawQuietZones, sizingMode, logo);
     }
+
+    /// <summary>
+    /// Creates an SVG QR code with a single function call.
+    /// </summary>
+    /// <param name="qrMatrix">The QR code matrix.</param>
+    /// <param name="cellSize">The size of each cell in the QR code matrix.</param>
+    /// <param name="scale">The scale factor for the SVG.</param>
+    /// <returns>Returns the QR code graphic as an SVG string.</returns>
+    public static string GenerateSVGQRCode(bool[][] qrMatrix, double cellSize = 10.0, double scale = 0.9)
+    {
+        var svgBuilder = new StringBuilder();
+        double scaledCellSize = cellSize * scale;
+
+        // SVG header
+        svgBuilder.AppendLine($"<svg xmlns='http://www.w3.org/2000/svg' width='{qrMatrix.Length * cellSize}' height='{qrMatrix.Length * cellSize}'>");
+
+        for (int y = 0; y < qrMatrix.Length; y++)
+        {
+            for (int x = 0; x < qrMatrix[y].Length; x++)
+            {
+                if (qrMatrix[y][x])
+                {
+                    double xPos = x * cellSize + (cellSize - scaledCellSize) / 2;
+                    double yPos = y * cellSize + (cellSize - scaledCellSize) / 2;
+
+                    svgBuilder.AppendLine($"<rect x='{xPos}' y='{yPos}' width='{scaledCellSize}' height='{scaledCellSize}' fill='black'/>");
+                }
+            }
+        }
+
+        // SVG footer
+        svgBuilder.AppendLine("</svg>");
+
+        return svgBuilder.ToString();
+    }
+
 }
+
+
 
 #endif

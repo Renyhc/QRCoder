@@ -892,6 +892,7 @@ namespace QRCoder
     }
     public static class SvgQRCodeHelper
     {
+        public static string GenerateSVGQRCode(bool[][] qrMatrix, double cellSize = 10, double scale = 0.9) { }
         public static string GetQRCode(string plainText, int pixelsPerModule, string darkColorHex, string lightColorHex, QRCoder.QRCodeGenerator.ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, QRCoder.QRCodeGenerator.EciMode eciMode = 0, int requestedVersion = -1, bool drawQuietZones = true, QRCoder.SvgQRCode.SizingMode sizingMode = 0, QRCoder.SvgQRCode.SvgLogo? logo = null) { }
     }
 }
