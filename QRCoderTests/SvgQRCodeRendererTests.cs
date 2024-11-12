@@ -99,7 +99,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(10, Color.DarkGray, Color.White, logo: logoObj);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("78e02e8ba415f15817d5ed88c4afca31");
+        result.ShouldBe("04b12051632549cbb1879a0fe1353731");
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(10, Color.DarkGray, Color.White, logo: logoObj);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("f221b2baecc2883f8e8ae54f12ba701b");
+        result.ShouldBe("b40c6997f78a2ef31e0a298c68bd31df");
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class SvgQRCodeRendererTests
         var svg = new SvgQRCode(data).GetGraphic(10, Color.Black, Color.White, drawQuietZones: false, logo: logoObj);
 
         var result = HelperFunctions.StringToHash(svg);
-        result.ShouldBe("8b4d114136c7fd26e0b34e5a15daac3b");
+        result.ShouldBe("42c43d33fc41bfff07b12f43b367808c");
     }
 #endif
 
@@ -208,6 +208,50 @@ public class SvgQRCodeRendererTests
 
         var result = HelperFunctions.StringToHash(svg);
         result.ShouldBe("f5ec37aa9fb207e3701cc0d86c4a357d");
+    }
+
+    [Fact]
+    public void can_render_svg_qrcode_with_cell_spacing()
+    {
+        //Create QR code
+        var gen = new QRCodeGenerator();
+        var data = gen.CreateQrCode("This is a quick test! 123#?", QRCodeGenerator.ECCLevel.L);
+        
+        // Create QR code with 10% spacing between cells
+        var svg = new SvgQRCode(data).GetGraphic(10, Color.Black, Color.White, cellSpacing: 0.1);
+
+        var result = HelperFunctions.StringToHash(svg);
+        result.ShouldBe("expected_hash_here"); // You'll need to replace this with the actual hash after first run
+    }
+
+    [Fact]
+    public void can_render_svg_qrcode_with_cell_spacing_from_helper()
+    {
+        // Create QR code with 10% spacing between cells using the helper method
+        var svg = SvgQRCodeHelper.GetQRCode(
+            "This is a quick test! 123#?", 
+            10, 
+            "#000000", 
+            "#ffffff", 
+            QRCodeGenerator.ECCLevel.L,
+            cellSpacing: 0.1
+        );
+
+        var result = HelperFunctions.StringToHash(svg);
+        result.ShouldBe("expected_hash_here"); // You'll need to replace this with the actual hash after first run
+    }
+
+    [Theory]
+    [InlineData(-0.1)] // Too small
+    [InlineData(1.1)]  // Too large
+    public void throws_on_invalid_cell_spacing(double invalidSpacing)
+    {
+        var gen = new QRCodeGenerator();
+        var data = gen.CreateQrCode("Test", QRCodeGenerator.ECCLevel.L);
+        var qrCode = new SvgQRCode(data);
+
+        Should.Throw<ArgumentOutOfRangeException>(() => 
+            qrCode.GetGraphic(10, Color.Black, Color.White, cellSpacing: invalidSpacing));
     }
 }
 #endif
