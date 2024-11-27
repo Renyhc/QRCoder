@@ -70,6 +70,23 @@ public partial class QRCodeGenerator : IDisposable
         => GenerateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion);
 
     /// <summary>
+    /// Creates an rMQR code with the specified parameters
+    /// </summary>
+    /// <param name="plainText">The text to encode</param>
+    /// <param name="version">The rMQR version to use</param>
+    /// <param name="forceUtf8">Force UTF8 encoding</param>
+    /// <param name="utf8BOM">Include UTF8 BOM</param>
+    /// <param name="eciMode">ECI mode to use</param>
+    /// <returns>QRCodeData containing the rMQR code data</returns>
+    public QRCodeData CreateRMQRCode(string plainText, RMQRVersion version, bool forceUtf8 = false, bool utf8BOM = false, EciMode eciMode = EciMode.Default)
+    {
+        var data = GenerateQrCode(plainText, ECCLevel.RMQR, forceUtf8, utf8BOM, eciMode, -1);
+        using var rmqr = new RMQRCode(data);
+        rmqr.SetVersion(version);
+        return data;
+    }
+
+    /// <summary>
     /// Calculates the QR code data which than can be used in one of the rendering classes to generate a graphical representation.
     /// </summary>
     /// <param name="binaryData">A byte array which shall be encoded/stored in the QR code</param>
