@@ -42,6 +42,7 @@ public class RMQRCodeTests
 #if !NET35 && !NET452
 #if !NET35 && !NET452
 #if !NET35 && !NET452
+#if !NET35 && !NET452
     [Theory]
     [InlineData(RMQRVersion.R7x43)]
     [InlineData(RMQRVersion.R11x27)]
