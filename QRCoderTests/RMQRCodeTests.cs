@@ -1,4 +1,5 @@
 using QRCoder;
+using QRCoder.QRCodeGenerator;
 using Shouldly;
 using Xunit;
 
