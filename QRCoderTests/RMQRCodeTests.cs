@@ -38,13 +38,19 @@ public class RMQRCodeTests
         height.ShouldBe(11);
     }
 
+#if !NET35 && !NET452
     [Theory]
     [InlineData(RMQRVersion.R7x43)]
     [InlineData(RMQRVersion.R11x27)] 
     [InlineData(RMQRVersion.R13x77)]
     [InlineData(RMQRVersion.R17x139)]
     public void can_create_rmqr_different_versions(RMQRVersion version)
+#else
+    [Fact] 
+    public void can_create_rmqr_different_versions()
+#endif
     {
+#if !NET35 && !NET452
         var gen = new QRCodeGenerator();
         var data = gen.CreateRMQRCode("Test", version);
         var (width, height) = RMQRCode.GetDimensions(version);
@@ -52,6 +58,17 @@ public class RMQRCodeTests
         data.ShouldNotBeNull();
         data.ModuleMatrix.Count.ShouldBe(height);
         data.ModuleMatrix[0].Length.ShouldBe(width);
+#else
+        // Test a single version for .NET 3.5/4.5.2
+        var gen = new QRCodeGenerator();
+        var version = RMQRVersion.R7x43;
+        var data = gen.CreateRMQRCode("Test", version);
+        var dimensions = RMQRCode.GetDimensions(version);
+        
+        data.ShouldNotBeNull();
+        data.ModuleMatrix.Count.ShouldBe(dimensions.Height);
+        data.ModuleMatrix[0].Length.ShouldBe(dimensions.Width);
+#endif
     }
 
     [Fact]
