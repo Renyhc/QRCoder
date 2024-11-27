@@ -7,7 +7,7 @@ namespace QRCoder;
 /// <summary>
 /// Represents a Rectangular Micro QR (rMQR) code generator.
 /// </summary>
-public class RMQRCode : AbstractQRCode, IDisposable 
+public class RMQRCode : AbstractQRCode, IDisposable
 {
     /// <summary>
     /// The version of the rMQR code, which determines its size and data capacity.
@@ -23,7 +23,7 @@ public class RMQRCode : AbstractQRCode, IDisposable
     /// Initializes a new instance of the RMQRCode class with the specified QRCodeData.
     /// </summary>
     /// <param name="data">QRCodeData containing the data to encode.</param>
-    public RMQRCode(QRCodeData data) : base(data) 
+    public RMQRCode(QRCodeData data) : base(data)
     {
         Version = RMQRVersion.R7x43;  // Default version
     }
@@ -32,10 +32,7 @@ public class RMQRCode : AbstractQRCode, IDisposable
     /// Sets the version for the rMQR code.
     /// </summary>
     /// <param name="version">The desired version.</param>
-    public void SetVersion(RMQRVersion version)
-    {
-        Version = version;
-    }
+    public void SetVersion(RMQRVersion version) => Version = version;
 
     /// <summary>
     /// Gets the dimensions for a specific rMQR version.
@@ -94,14 +91,12 @@ public enum RMQRVersion
     R7x77,
     R7x99,
     R7x139,
-    
     // 9-module height versions
     R9x43,
     R9x59,
     R9x77,
     R9x99,
     R9x139,
-    
     // 11-module height versions
     R11x27,
     R11x43,
@@ -109,7 +104,6 @@ public enum RMQRVersion
     R11x77,
     R11x99,
     R11x139,
-    
     // 13-module height versions
     R13x27,
     R13x43,
@@ -117,14 +111,12 @@ public enum RMQRVersion
     R13x77,
     R13x99,
     R13x139,
-    
     // 15-module height versions
     R15x43,
     R15x59,
     R15x77,
     R15x99,
     R15x139,
-    
     // 17-module height versions
     R17x43,
     R17x59,
