@@ -19,13 +19,13 @@ public class RMQRCodeTests
     [Fact]
     public void can_get_rmqr_dimensions()
     {
-        var (width, height) = RMQRCode.GetDimensions(RMQRVersion.R7x43);
-        width.ShouldBe(43);
-        height.ShouldBe(7);
+        var dimensions = RMQRCode.GetDimensions(RMQRVersion.R7x43);
+        dimensions.Width.ShouldBe(43);
+        dimensions.Height.ShouldBe(7);
 
-        (width, height) = RMQRCode.GetDimensions(RMQRVersion.R13x77);
-        width.ShouldBe(77);
-        height.ShouldBe(13);
+        dimensions = RMQRCode.GetDimensions(RMQRVersion.R13x77);
+        dimensions.Width.ShouldBe(77);
+        dimensions.Height.ShouldBe(13);
     }
 
     [Fact]
