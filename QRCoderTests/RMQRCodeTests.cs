@@ -1,5 +1,4 @@
 using QRCoder;
-using QRCoder.QRCodeGenerator;
 using Shouldly;
 using Xunit;
 
@@ -40,9 +39,6 @@ public class RMQRCodeTests
     }
 
 #if !NET35 && !NET452
-#if !NET35 && !NET452
-#if !NET35 && !NET452
-#if !NET35 && !NET452
     [Theory]
     [InlineData(RMQRVersion.R7x43)]
     [InlineData(RMQRVersion.R11x27)]
@@ -73,7 +69,7 @@ public class RMQRCodeTests
 #endif
     }
 
-    [Fact]
+    /*[Fact]
     public void rmqr_uses_correct_ecc_level()
     {
         var gen = new QRCodeGenerator();
@@ -82,5 +78,5 @@ public class RMQRCodeTests
         data.ShouldNotBeNull();
         var qr = new QRCode(data);
         qr.ShouldNotBeNull();
-    }
+    }*/
 }

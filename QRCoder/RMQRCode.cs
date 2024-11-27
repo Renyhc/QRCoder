@@ -45,100 +45,132 @@ public class RMQRCode : AbstractQRCode, IDisposable
         switch (version)
         {
             case RMQRVersion.R7x43:
-                width = 43; height = 7;
+                width = 43;
+                height = 7;
                 break;
             case RMQRVersion.R7x59:
-                width = 59; height = 7;
+                width = 59;
+                height = 7;
                 break;
             case RMQRVersion.R7x77:
-                width = 77; height = 7;
+                width = 77;
+                height = 7;
                 break;
             case RMQRVersion.R7x99:
-                width = 99; height = 7;
+                width = 99;
+                height = 7;
                 break;
             case RMQRVersion.R7x139:
-                width = 139; height = 7;
+                width = 139;
+                height = 7;
                 break;
             case RMQRVersion.R9x43:
-                width = 43; height = 9;
+                width = 43;
+                height = 9;
                 break;
             case RMQRVersion.R9x59:
-                width = 59; height = 9;
+                width = 59;
+                height = 9;
                 break;
             case RMQRVersion.R9x77:
-                width = 77; height = 9;
+                width = 77;
+                height = 9;
                 break;
             case RMQRVersion.R9x99:
-                width = 99; height = 9;
+                width = 99;
+                height = 9;
                 break;
             case RMQRVersion.R9x139:
-                width = 139; height = 9;
+                width = 139;
+                height = 9;
                 break;
             case RMQRVersion.R11x27:
-                width = 27; height = 11;
+                width = 27;
+                height = 11;
                 break;
             case RMQRVersion.R11x43:
-                width = 43; height = 11;
+                width = 43;
+                height = 11;
                 break;
             case RMQRVersion.R11x59:
-                width = 59; height = 11;
+                width = 59;
+                height = 11;
                 break;
             case RMQRVersion.R11x77:
-                width = 77; height = 11;
+                width = 77;
+                height = 11;
                 break;
             case RMQRVersion.R11x99:
-                width = 99; height = 11;
+                width = 99;
+                height = 11;
                 break;
             case RMQRVersion.R11x139:
-                width = 139; height = 11;
+                width = 139;
+                height = 11;
                 break;
             case RMQRVersion.R13x27:
-                width = 27; height = 13;
+                width = 27;
+                height = 13;
                 break;
             case RMQRVersion.R13x43:
-                width = 43; height = 13;
+                width = 43;
+                height = 13;
                 break;
             case RMQRVersion.R13x59:
-                width = 59; height = 13;
+                width = 59;
+                height = 13;
                 break;
             case RMQRVersion.R13x77:
-                width = 77; height = 13;
+                width = 77;
+                height = 13;
                 break;
             case RMQRVersion.R13x99:
-                width = 99; height = 13;
+                width = 99;
+                height = 13;
                 break;
             case RMQRVersion.R13x139:
-                width = 139; height = 13;
+                width = 139;
+                height = 13;
                 break;
             case RMQRVersion.R15x43:
-                width = 43; height = 15;
+                width = 43;
+                height = 15;
                 break;
             case RMQRVersion.R15x59:
-                width = 59; height = 15;
+                width = 59;
+                height = 15;
                 break;
             case RMQRVersion.R15x77:
-                width = 77; height = 15;
+                width = 77;
+                height = 15;
                 break;
             case RMQRVersion.R15x99:
-                width = 99; height = 15;
+                width = 99;
+                height = 15;
                 break;
             case RMQRVersion.R15x139:
-                width = 139; height = 15;
+                width = 139;
+                height = 15;
                 break;
             case RMQRVersion.R17x43:
-                width = 43; height = 17;
+                width = 43;
+                height = 17;
                 break;
             case RMQRVersion.R17x59:
-                width = 59; height = 17;
+                width = 59;
+                height = 17;
                 break;
             case RMQRVersion.R17x77:
-                width = 77; height = 17;
+                width = 77;
+                height = 17;
                 break;
             case RMQRVersion.R17x99:
-                width = 99; height = 17;
+                width = 99;
+                height = 17;
                 break;
             case RMQRVersion.R17x139:
-                width = 139; height = 17;
+                width = 139;
+                height = 17;
                 break;
             default:
                 throw new ArgumentException("Invalid rMQR version", nameof(version));

@@ -211,7 +211,7 @@ public partial class QRCodeGenerator : IDisposable
     {
         return eccLevel switch
         {
-            ECCLevel.L or ECCLevel.M or ECCLevel.Q or ECCLevel.H => eccLevel,
+            ECCLevel.L or ECCLevel.M or ECCLevel.Q or ECCLevel.H or ECCLevel.RMQR => eccLevel,
             ECCLevel.Default => ECCLevel.M,
             _ => throw new ArgumentOutOfRangeException(nameof(eccLevel), eccLevel, "Invalid error correction level."),
         };

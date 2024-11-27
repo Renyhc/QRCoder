@@ -36,6 +36,11 @@ public partial class QRCodeGenerator
         /// Level H: High error correction (approximately 30% of data can be recovered).
         /// Provides the highest level of error recovery, ideal for environments with high risk of data loss.
         /// </summary>
-        H = 3
+        H = 3,
+
+        /// <summary>
+        /// rMQR error correction level.
+        /// </summary>
+        RMQR = 4
     }
 }
