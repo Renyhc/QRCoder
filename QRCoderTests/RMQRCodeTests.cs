@@ -41,12 +41,12 @@ public class RMQRCodeTests
 #if !NET35 && !NET452
     [Theory]
     [InlineData(RMQRVersion.R7x43)]
-    [InlineData(RMQRVersion.R11x27)] 
+    [InlineData(RMQRVersion.R11x27)]
     [InlineData(RMQRVersion.R13x77)]
     [InlineData(RMQRVersion.R17x139)]
     public void can_create_rmqr_different_versions(RMQRVersion version)
 #else
-    [Fact] 
+    [Fact]
     public void can_create_rmqr_different_versions()
 #endif
     {
@@ -54,7 +54,6 @@ public class RMQRCodeTests
         var gen = new QRCodeGenerator();
         var data = gen.CreateRMQRCode("Test", version);
         var (width, height) = RMQRCode.GetDimensions(version);
-        
         data.ShouldNotBeNull();
         data.ModuleMatrix.Count.ShouldBe(height);
         data.ModuleMatrix[0].Length.ShouldBe(width);
@@ -64,7 +63,6 @@ public class RMQRCodeTests
         var version = RMQRVersion.R7x43;
         var data = gen.CreateRMQRCode("Test", version);
         var dimensions = RMQRCode.GetDimensions(version);
-        
         data.ShouldNotBeNull();
         data.ModuleMatrix.Count.ShouldBe(dimensions.Height);
         data.ModuleMatrix[0].Length.ShouldBe(dimensions.Width);
@@ -76,7 +74,6 @@ public class RMQRCodeTests
     {
         var gen = new QRCodeGenerator();
         var data = gen.CreateRMQRCode("Test", RMQRVersion.R7x43);
-        
         // Verify RMQR uses its specific ECC level
         data.ShouldNotBeNull();
         var qr = new QRCode(data);
