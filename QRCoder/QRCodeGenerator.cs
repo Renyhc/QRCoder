@@ -332,7 +332,7 @@ public partial class QRCodeGenerator : IDisposable
         // Place the modules on the QR code matrix
         QRCodeData PlaceModules()
         {
-            var qr = new QRCodeData(version, true);
+            var qr = new QRCodeData(version.ToString(), QRCodeData.Compression.None);
             var size = qr.ModuleMatrix.Count - 8;
             var tempBitArray = new BitArray(18); //version string requires 18 bits
             using (var blockedModules = new ModulePlacer.BlockedModules(size))
@@ -1363,6 +1363,45 @@ public partial class QRCodeGenerator : IDisposable
             ));
         }
         return localCapacityTable;
+    }
+
+    public QRCodeData CreateRMQRCode(PayloadGenerator.Payload payload, ECCLevel eccLevel)
+    {
+        // Validate payload size for rMQR versions
+        ValidatePayloadForRMQR(payload, eccLevel);
+
+        // Select appropriate rMQR version based on payload
+        int selectedVersion = SelectRMQRVersion(payload);
+
+        // Calculate error correction for rMQR
+        var errorCorrection = CalculateRMQRECC(payload, eccLevel, selectedVersion);
+
+        // Generate module matrix for rMQR
+        var moduleMatrix = GenerateRMQREncoding(payload, selectedVersion, errorCorrection);
+
+        // Create and return QRCodeData
+        return new QRCodeData(moduleMatrix, selectedVersion, eccLevel);
+    }
+
+    // Helper methods for rMQR
+    private void ValidatePayloadForRMQR(PayloadGenerator.Payload payload, ECCLevel eccLevel)
+    {
+        // Implementation for payload validation
+    }
+
+    private int SelectRMQRVersion(PayloadGenerator.Payload payload)
+    {
+        // Implementation to select rMQR version based on payload
+    }
+
+    private ErrorCorrection CalculateRMQRECC(PayloadGenerator.Payload payload, ECCLevel eccLevel, int version)
+    {
+        // Implementation for rMQR-specific error correction calculations
+    }
+
+    private List<BitArray> GenerateRMQREncoding(PayloadGenerator.Payload payload, int version, ErrorCorrection ecc)
+    {
+        // Implementation to generate rMQR encoding
     }
 
     /// <inheritdoc cref="IDisposable.Dispose"/>

@@ -63,6 +63,11 @@ public class QRCode : AbstractQRCode, IDisposable
         using (var lightBrush = new SolidBrush(lightColor))
         using (var darkBrush = new SolidBrush(darkColor))
         {
+            if (QrCodeData.Mode == EncodingMode.RMQR)
+            {
+                // Adjust rendering logic for rMQR specific module matrix
+            }
+
             for (var x = 0; x < size + offset; x += pixelsPerModule)
             {
                 for (var y = 0; y < size + offset; y += pixelsPerModule)

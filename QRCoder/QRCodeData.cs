@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Drawing; // Added for Bitmap, Color, Graphics, SolidBrush
 
 namespace QRCoder;
 
@@ -17,6 +18,23 @@ public class QRCodeData : IDisposable
     public List<BitArray> ModuleMatrix { get; set; }
 
     /// <summary>
+    /// Gets or sets the encoding mode of the QR code.
+    /// </summary>
+    public EncodingMode Mode { get; set; } // New property to specify encoding mode
+
+    /// <summary>
+    /// Specifies the encoding mode of the QR code.
+    /// </summary>
+    public enum EncodingMode
+    {
+        Numeric,
+        Alphanumeric,
+        Byte,
+        Kanji,
+        RMQR // New encoding mode for rMQR
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="QRCodeData"/> class with the specified version.
     /// </summary>
     /// <param name="version">The version of the QR code.</param>
@@ -24,20 +42,6 @@ public class QRCodeData : IDisposable
     {
         Version = version;
         var size = ModulesPerSideFromVersion(version);
-        ModuleMatrix = new List<BitArray>(size);
-        for (var i = 0; i < size; i++)
-            ModuleMatrix.Add(new BitArray(size));
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="QRCodeData"/> class with the specified version and padding option.
-    /// </summary>
-    /// <param name="version">The version of the QR code.</param>
-    /// <param name="addPadding">Indicates whether padding should be added to the QR code.</param>
-    public QRCodeData(int version, bool addPadding)
-    {
-        Version = version;
-        var size = ModulesPerSideFromVersion(version) + (addPadding ? 8 : 0);
         ModuleMatrix = new List<BitArray>(size);
         for (var i = 0; i < size; i++)
             ModuleMatrix.Add(new BitArray(size));
@@ -226,5 +230,75 @@ public class QRCodeData : IDisposable
         /// GZip compression.
         /// </summary>
         GZip
+    }
+
+    /// <summary>
+    /// Generates a graphic representation of the QR code.
+    /// </summary>
+    /// <param name="pixelsPerModule">The number of pixels per module.</param>
+    /// <param name="darkColor">The color of the dark modules.</param>
+    /// <param name="lightColor">The color of the light modules.</param>
+    /// <param name="drawQuietZones">Indicates whether to draw quiet zones around the QR code.</param>
+    /// <returns>Returns a Bitmap representing the QR code.</returns>
+    public Bitmap GetGraphic(int pixelsPerModule, Color darkColor, Color lightColor, bool drawQuietZones = true)
+    {
+        var size = (ModuleMatrix.Count - (drawQuietZones ? 0 : 8)) * pixelsPerModule;
+        var offset = drawQuietZones ? 0 : 4 * pixelsPerModule;
+
+        var bmp = new Bitmap(size, size);
+        using (var gfx = Graphics.FromImage(bmp))
+        using (var lightBrush = new SolidBrush(lightColor))
+        using (var darkBrush = new SolidBrush(darkColor))
+        {
+            if (Mode == EncodingMode.RMQR)
+            {
+                // Adjust rendering logic for rMQR specific module matrix
+            }
+
+            for (var x = 0; x < size + offset; x += pixelsPerModule)
+            {
+                for (var y = 0; y < size + offset; y += pixelsPerModule)
+                {
+                    var module = ModuleMatrix[(y + pixelsPerModule) / pixelsPerModule - 1][(x + pixelsPerModule) / pixelsPerModule - 1];
+
+                    if (module)
+                    {
+                        gfx.FillRectangle(darkBrush, new Rectangle(x - offset, y - offset, pixelsPerModule, pixelsPerModule));
+                    }
+                    else
+                    {
+                        gfx.FillRectangle(lightBrush, new Rectangle(x - offset, y - offset, pixelsPerModule, pixelsPerModule));
+                    }
+                }
+            }
+
+            gfx.Save();
+        }
+
+        return bmp;
+    }
+
+    public QRCodeData CreateQrCode(string plainText, ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, EciMode eciMode = EciMode.Default, int requestedVersion = -1)
+    {
+        return GenerateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion);
+    }
+
+    private static QRCodeData GenerateQrCode(string plainText, ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, EciMode eciMode = EciMode.Default, int requestedVersion = -1)
+    {
+        if (version == -1)
+        {
+            // Logic for determining version
+        }
+        else
+        {
+            if (minVersion > version)
+            {
+                // Logic for handling version
+            }
+        }
+        if (eciMode != EciMode.Default)
+        {
+            // Logic for handling ECI mode
+        }
     }
 }
