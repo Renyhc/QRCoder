@@ -17,6 +17,11 @@ public class QRCodeData : IDisposable
     public List<BitArray> ModuleMatrix { get; set; }
 
     /// <summary>
+    /// Gets whether the QR code is an rMQR code.
+    /// </summary>
+    public bool IsRMQR { get; private set; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="QRCodeData"/> class with the specified version.
     /// </summary>
     /// <param name="version">The version of the QR code.</param>
@@ -226,5 +231,15 @@ public class QRCodeData : IDisposable
         /// GZip compression.
         /// </summary>
         GZip
+    }
+
+    /// <summary>
+    /// Initializes QRCodeData from rMQR data
+    /// </summary>
+    internal QRCodeData(RMQRCodeData rmqrData)
+    {
+        ModuleMatrix = rmqrData.ModuleMatrix;
+        IsRMQR = true;
+        Version = 0; // rMQR uses different versioning
     }
 }

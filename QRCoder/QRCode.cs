@@ -32,7 +32,14 @@ public class QRCode : AbstractQRCode, IDisposable
     /// <param name="pixelsPerModule">The number of pixels each dark/light module of the QR code will occupy in the final QR code image.</param>
     /// <returns>Returns the QR code graphic as a bitmap.</returns>
     public Bitmap GetGraphic(int pixelsPerModule)
-        => GetGraphic(pixelsPerModule, Color.Black, Color.White, true);
+    {
+        if (QrCodeData.IsRMQR)
+        {
+            using var rmqr = new RMQRCode(new RMQRCodeData(QrCodeData.ModuleMatrix, (RMQRVersion)QrCodeData.Version));
+            return rmqr.GetGraphic(pixelsPerModule, Color.Black, Color.White);
+        }
+        return GetGraphic(pixelsPerModule, Color.Black, Color.White, true);
+    }
 
     /// <summary>
     /// Creates a colored bitmap image of the QR code.

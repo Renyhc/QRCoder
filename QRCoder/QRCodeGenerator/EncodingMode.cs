@@ -35,6 +35,11 @@ public partial class QRCodeGenerator
         /// Extended Channel Interpretation (ECI) mode, which specifies a character set via an 8-bit number followed by one of the other encoding modes.
         /// This allows adapting the byte encoding to accommodate various global text encodings.
         /// </summary>
-        ECI = 7
+        ECI = 7,
+
+        /// <summary>
+        /// Rectangular Micro QR Code encoding mode.
+        /// </summary>
+        RMQR = 16
     }
 }
